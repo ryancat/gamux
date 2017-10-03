@@ -1,0 +1,51 @@
+{
+  "name": "gamux",
+  "version": "0.0.1",
+  "description": "HTML game state management and render engine",
+  "main": "dist/gamux.js",
+  "scripts": {
+    "prestart": "babel-node tools/startMessage.js",
+    "start": "npm-run-all --parallel webpack:watch test:watch open:src lint:watch",
+    "open:src": "babel-node tools/server.js",
+    "webpack:watch": "webpack --watch",
+    "lint": "esw webpack.config.* src tools demo",
+    "lint:watch": "npm run lint -- --ignore-pattern demo/dist/*.js --watch",
+    "test": "mocha --reporter progress tools/testSetup.js \"src/**/*.test.js\"",
+    "test:watch": "npm run test -- --watch",
+    "build:production": "babel-node tools/productionBundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ryancat/gamux.git"
+  },
+  "author": "Ryan Chen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ryancat/gamux/issues"
+  },
+  "homepage": "https://github.com/ryancat/gamux#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "colors": "^1.1.2",
+    "css-loader": "^0.28.7",
+    "eslint": "^4.6.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-watch": "^3.1.2",
+    "expect": "^21.0.2",
+    "express": "^4.15.4",
+    "jsdom": "^11.2.0",
+    "mocha": "^3.5.0",
+    "node-sass": "^4.5.3",
+    "npm-run-all": "^4.1.1",
+    "open": "0.0.5",
+    "path": "^0.12.7",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.18.2",
+    "webpack": "^3.6.0",
+    "webpack-dev-middleware": "^1.12.0",
+    "webpack-hot-middleware": "^2.19.1"
+  }
+}
