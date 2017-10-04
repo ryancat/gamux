@@ -57,6 +57,22 @@ const gamux = {
     _init = config.init || _init
     _fps = config.fps || _fps
 
+    _init()
+
+    let container = config.container
+
+    // Create game layers
+    config.layers.forEach((layerName) => {
+      let canvas = document.createElement('canvas')
+      container.appendChild(canvas)
+
+      gamux.layers[layerName] = {
+        canvas,
+        canvasCtx: canvas.getContext('2d')
+      }
+    })
+
+    // Create game store
     let reducerMap = config.reducerMap,
         updaterMap = {}
 
@@ -74,9 +90,9 @@ const gamux = {
     }
 
     _store = createStore(combineReducer(reducerMap, updaterMap))
-    
-    _init()
   },
+
+  layers: {},
 
   start: () => {
     _loop(Date.now())

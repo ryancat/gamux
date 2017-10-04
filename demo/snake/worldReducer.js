@@ -10,7 +10,7 @@ const initState = {
   level: 1
 }
 
-export default (state, action) => {
+export default (state = initState, action) => {
   switch (action.type) {
 
     case GAME_RESIZE:

@@ -24,7 +24,7 @@ const initState = {
 
 export default (state = initState, action) => {
   switch (action.type) {
-    case INIT_SNAKE:
+    case INIT_SNAKE: {
       let {
         body,
         direction
@@ -35,6 +35,7 @@ export default (state = initState, action) => {
         direction,
         isMove: true
       })
+    }
 
     case MOVE_UP:
       return Object.assign({}, state, {
