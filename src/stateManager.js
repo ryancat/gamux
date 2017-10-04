@@ -10,7 +10,7 @@ export function createStore (reducer) {
       if (process.env.code === 'DEV') {
         // log actions in console
         console.group(action.type)
-        console.info('before:', state)
+        console.info('%cbefore:', 'color: green', state)
         console.info('%caction:', 'color: red', action)
       }
       
@@ -23,7 +23,7 @@ export function createStore (reducer) {
 
       if (process.env.code === 'DEV') {
         // log actions in console
-        console.info('after:', state)
+        console.info('%cafter:', 'color: green', state)
         console.groupEnd()
       }
     },
@@ -43,14 +43,31 @@ export function createStore (reducer) {
 }
 
 // Assume the recuerMap is a flat map to all reducers
-export function combineReducer (reducerMap = {}) {
+export function combineReducer (reducerMap = {}, updaterMap = {}) {
+
+  // Generate a combined reducer function
   return (state = {}, action = {}) => {
-    var newState = {}
+    var newState = {},
+        dirtyKeys = []
+
+    // Spread the action to all reducers inside the combined one
     for (let key in reducerMap) {
       // Pass the whole state down as argument for
       // cross state key access
-      newState[key] = reducerMap[key](state[key], action, state)
+      let reducedState = reducerMap[key](state[key], action, state)
+
+      if (reducedState !== state[key]) {
+        dirtyKeys.push(key)
+      }
+
+      newState[key] = reducedState
     }
+
+    // Call update function for each reduced state
+    dirtyKeys.forEach((dirtyKey) => {
+      updaterMap[dirtyKey](newState, dirtyKey)
+    })
+
     return newState
   }
 }

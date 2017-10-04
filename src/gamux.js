@@ -40,7 +40,7 @@ function _loop (lastTimestamp) {
 
     if (_accumulator >= dt) {
       while (_accumulator >= dt) {
-        _update()
+        // _update()
         _accumulator -= dt
       }
       _render(dt)
@@ -51,20 +51,29 @@ function _loop (lastTimestamp) {
 
 const gamux = {
   config: (config = {}) => {
+    // Config the private globals
     _update = config.update || _update
     _render = config.render || _render
     _init = config.init || _init
     _fps = config.fps || _fps
-    _store = createStore(combineReducer(config.reducerMap))
 
-    // let container = config.container || document.body
+    let reducerMap = config.reducerMap,
+        updaterMap = {}
 
-    // gamux.game = {
-    //   container,
-    //   width: container.offsetWidth,
-    //   height: container.offsetHeight
-    // }
-    // 
+    if (!config.updaterMap) {
+      for (let key in reducerMap) {
+        updaterMap[key] = _update
+      }
+    }
+    else {
+      // We will ignore config.update if updaterMap exists
+      if (process.env.code === 'DEV' && config.update) {
+        console.warn('Ignore config.update and use config.updaterMap')
+      }
+      updaterMap = config.updaterMap
+    }
+
+    _store = createStore(combineReducer(reducerMap, updaterMap))
     
     _init()
   },

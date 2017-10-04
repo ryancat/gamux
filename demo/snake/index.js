@@ -31,9 +31,8 @@ gamux.config({
    * update getting called when animate available 
    * @param  {number} dt - The time span since last update
    */
-  update: () => {
-    // console.log('update')
-    
+  update: (gameState, stateKey) => {
+    console.log('update', gameState, stateKey)
   },
 
   /**
