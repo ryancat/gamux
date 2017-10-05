@@ -5,6 +5,7 @@ import {
   DOWN_KEYDOWN,
   SET_SNAKE_BODY,
 } from './actions'
+import {gameDefault} from './theme'
 
 const initState = {
   /**
@@ -13,8 +14,8 @@ const initState = {
   body: [],
   isMove: false,
   speed: 10,
-  rows: 20,
-  columns: 20
+  rows: gameDefault.rows,
+  columns: gameDefault.columns
 }
 
 export default (state = initState, action) => {

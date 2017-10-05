@@ -194,7 +194,8 @@ gamux.config({
             height: cellHeight
           }
         }),
-        isMove
+        isMove,
+        speed
       }
     }
   },
@@ -273,21 +274,32 @@ gamux.config({
             } = bodyBlock
 
         if (bodyFRS[index].x !== x) {
-          x += speed * dt * (bodyFRS[index].x - x) / Math.abs(bodyFRS[index].x - x)
+          let directionUnit = (bodyFRS[index].x - x) / Math.abs(bodyFRS[index].x - x),
+              distance = Math.min(speed * dt, Math.abs(bodyFRS[index].x - x))
+
+          bodyBlock.x += distance * directionUnit
         }
 
         if (bodyFRS[index].y !== y) {
-          y += speed * dt * (bodyFRS[index].y - y) / Math.abs(bodyFRS[index].y - y)
+          let directionUnit = (bodyFRS[index].y - y) / Math.abs(bodyFRS[index].y - y),
+              distance = Math.min(speed * dt, Math.abs(bodyFRS[index].y - y))
+          
+          bodyBlock.y += distance * directionUnit
         }
-        
+      })
+
+      // Render
+      body.forEach((bodyBlock, index) => {
         if (index === 0) {
           snakeLayerContext.fillStyle = '#ea6969'
         }
         else {
           snakeLayerContext.fillStyle = '#3f3f3f'
         }
-        snakeLayerContext.fillRect(x, y, bodyBlock.width, bodyBlock.height)
+        snakeLayerContext.fillRect(bodyBlock.x, bodyBlock.y, bodyBlock.width, bodyBlock.height)
       })
+
+      snakeLayer.renderState = snakeLayerCRS
     }
   },
 
