@@ -57,7 +57,6 @@ const gamux = {
     _init = config.init || _init
     _fps = config.fps || _fps
 
-    _init()
 
     let container = config.container
 
@@ -90,6 +89,7 @@ const gamux = {
     }
 
     _store = createStore(combineReducer(reducerMap, updaterMap))
+    _init(_store.getState())
   },
 
   layers: {},

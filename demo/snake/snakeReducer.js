@@ -1,9 +1,10 @@
 import {
-  INIT_SNAKE,
   MOVE_UP,
   MOVE_DOWN,
   MOVE_LEFT,
-  MOVE_RIGHT
+  MOVE_RIGHT,
+
+  SET_SNAKE_BODY
 } from './actions'
 
 const direction = {
@@ -18,21 +19,19 @@ const initState = {
    * A linked list for snake body
    */
   body: [],
-  direction: null,
-  isMove: false
+  isMove: false,
+  speed: 10
 }
 
 export default (state = initState, action) => {
   switch (action.type) {
-    case INIT_SNAKE: {
+    case SET_SNAKE_BODY: {
       let {
         body,
-        direction
       } = action
 
       return Object.assign({}, state, {
         body,
-        direction,
         isMove: true
       })
     }
