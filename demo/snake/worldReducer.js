@@ -2,15 +2,13 @@ import {
   GAME_RESIZE,
   SET_STAR_POSITION
 } from './actions'
-
-const ROWS = 20,
-      COLUMNS = 20
+import gamux from '../../dist/gamux'
 
 const initState = {
   width: -1,
   height: -1,
-  rows: ROWS,
-  columns: COLUMNS,
+  rows: 20,
+  columns: 20,
   // starPosition: {
   //   row: Math.floor(Math.random() * ROWS),
   //   column: Math.floor(Math.random() * COLUMNS)

@@ -4,7 +4,11 @@ import worldReducer from './worldReducer'
 import { 
   gameResize,
   setStarPosition,
-  setSnakeBody
+  setSnakeBody,
+  leftKeyDown,
+  rightKeyDown,
+  upKeyDown,
+  downKeyDown
 } from './actions'
 
 import './index.scss'
@@ -15,6 +19,17 @@ gamux.config({
   fps: 60,
 
   container,
+
+  shared: {
+    direction: {
+      LEFT: 'left',
+      RIGHT: 'right',
+      UP: 'up',
+      DOWN: 'down'
+    },
+    rows: 20,
+    columns: 20
+  },
 
   layers: [
     'worldLayer',
@@ -77,6 +92,23 @@ gamux.config({
         container.offsetHeight
       ))
     }
+
+    document.addEventListener('keydown', (evt) => {
+      switch (evt.keyCode) {
+        case 37: // Left
+          gamux.dispatch(leftKeyDown())
+          break
+        case 38: // Up
+          gamux.dispatch(upKeyDown())
+          break
+        case 39: // Right
+          gamux.dispatch(rightKeyDown())
+          break
+        case 40: // Down
+          gamux.dispatch(downKeyDown())
+          break
+      }
+    })
   },
 
   /**
@@ -147,7 +179,14 @@ gamux.config({
       snakeLayer.finalRenderState = {
         width,
         height,
-        body: body.map((bodyBlock) => {
+        body: body.map((bodyBlock, index) => {
+          let x = bodyBlock.column * cellWidth,
+              y = bodyBlock.row * cellHeight
+
+          // switch (direction) {
+          //   case gamux.shared.direction.UP:
+          //     y -= cellHeight
+          // }
           return {
             x: bodyBlock.column * cellWidth,
             y: bodyBlock.row * cellHeight,
@@ -157,10 +196,6 @@ gamux.config({
         }),
         isMove
       }
-      // // Set snake head direction
-      // if (body.length > 0) {
-      //   snakeLayer.finalRenderState.body[0].direction = direction  
-      // }
     }
   },
 
@@ -253,7 +288,6 @@ gamux.config({
         }
         snakeLayerContext.fillRect(x, y, bodyBlock.width, bodyBlock.height)
       })
-      // snakeLayer.renderState
     }
   },
 

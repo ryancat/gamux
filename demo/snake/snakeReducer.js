@@ -1,18 +1,10 @@
 import {
-  MOVE_UP,
-  MOVE_DOWN,
-  MOVE_LEFT,
-  MOVE_RIGHT,
-
-  SET_SNAKE_BODY
+  LEFT_KEYDOWN,
+  RIGHT_KEYDOWN,
+  UP_KEYDOWN,
+  DOWN_KEYDOWN,
+  SET_SNAKE_BODY,
 } from './actions'
-
-const direction = {
-  LEFT: 'left',
-  RIGHT: 'right',
-  UP: 'up',
-  DOWN: 'down'
-}
 
 const initState = {
   /**
@@ -20,11 +12,14 @@ const initState = {
    */
   body: [],
   isMove: false,
-  speed: 10
+  speed: 10,
+  rows: 20,
+  columns: 20
 }
 
 export default (state = initState, action) => {
   switch (action.type) {
+
     case SET_SNAKE_BODY: {
       let {
         body,
@@ -36,29 +31,69 @@ export default (state = initState, action) => {
       })
     }
 
-    case MOVE_UP:
-      return Object.assign({}, state, {
-        direction: direction.UP,
-        isMove: true
+    case UP_KEYDOWN: {
+      let body = state.body.slice()
+
+      body.reduce((first, second) => {
+        second.row = first.row
+        second.column = first.column
       })
 
-    case MOVE_DOWN:
+      body[0].row = body[0].row === 0 ? state.rows - 1 : body[0].row - 1
+
       return Object.assign({}, state, {
-        direction: direction.DOWN,
-        isMove: true
+        isMove: true,
+        body
+      })
+    }
+
+    case DOWN_KEYDOWN: {
+      let body = state.body.slice()
+
+      body.reduce((first, second) => {
+        second.row = first.row
+        second.column = first.column
       })
 
-    case MOVE_LEFT:
+      body[0].row = body[0].row === state.rows - 1 ? 0 : body[0].row + 1
+
       return Object.assign({}, state, {
-        direction: direction.LEFT,
-        isMove: true
+        isMove: true,
+        body
+      })
+    }
+
+    case LEFT_KEYDOWN: {
+      let body = state.body.slice()
+
+      body.reduce((first, second) => {
+        second.row = first.row
+        second.column = first.column
       })
 
-    case MOVE_RIGHT:
+      body[0].column = body[0].column === 0 ? state.columns - 1 : body[0].column - 1
+
       return Object.assign({}, state, {
-        direction: direction.RIGHT,
-        isMove: true
+        isMove: true,
+        body
       })
+    }
+
+    case RIGHT_KEYDOWN: {
+      let body = state.body.slice()
+
+      body.reduce((first, second) => {
+        second.row = first.row
+        second.column = first.column
+      })
+
+      body[0].column = body[0].column === state.columns - 1 ? 0 : body[0].column + 1
+
+      return Object.assign({}, state, {
+        isMove: true,
+        body
+      })
+    }
 
     default:
       return state
