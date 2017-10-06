@@ -6,9 +6,11 @@ export const LEFT_KEYDOWN = 'LEFT_KEYDOWN'
 export const RIGHT_KEYDOWN = 'RIGHT_KEYDOWN'
 export const UP_KEYDOWN = 'UP_KEYDOWN'
 export const DOWN_KEYDOWN = 'DOWN_KEYDOWN'
+export const GAME_OVER = 'GAME_OVER'
+export const NEXT_LEVEL = 'NEXT_LEVEL'
 
 // Action creators
-export const gameResize = (width, height) => {
+export function gameResize (width, height) {
   return {
     type: GAME_RESIZE,
     width,
@@ -16,7 +18,7 @@ export const gameResize = (width, height) => {
   }
 }
 
-export const setStarPosition = (row, column) => {
+export function setStarPosition (row, column) {
   return {
     type: SET_STAR_POSITION,
     row,
@@ -24,33 +26,46 @@ export const setStarPosition = (row, column) => {
   }
 }
 
-export const setSnakeBody = (body) => {
+export function setSnakeBody (body) {
   return {
     type: SET_SNAKE_BODY,
     body
   }
 }
 
-export const leftKeyDown = () => {
+export function leftKeyDown () {
   return {
     type: LEFT_KEYDOWN
   }
 }
 
-export const rightKeyDown = () => {
+export function rightKeyDown () {
   return {
     type: RIGHT_KEYDOWN
   }
 }
 
-export const upKeyDown = () => {
+export function upKeyDown () {
   return {
     type: UP_KEYDOWN
   }
 }
 
-export const downKeyDown = () => {
+export function downKeyDown () {
   return {
     type: DOWN_KEYDOWN
+  }
+}
+
+export function gameOver () {
+  return {
+    type: GAME_OVER
+  }
+}
+
+export function nextLevel (snakeBody) {
+  return {
+    type: NEXT_LEVEL,
+    snakeBody
   }
 }

@@ -4,8 +4,12 @@ import {
   UP_KEYDOWN,
   DOWN_KEYDOWN,
   SET_SNAKE_BODY,
+  NEXT_LEVEL
 } from './actions'
-import {gameDefault} from './theme'
+import {
+  gameDefault,
+  direction
+} from './theme'
 
 const initState = {
   /**
@@ -13,9 +17,10 @@ const initState = {
    */
   body: [],
   isMove: false,
-  speed: 10,
+  speed: gameDefault.speed,
   rows: gameDefault.rows,
-  columns: gameDefault.columns
+  columns: gameDefault.columns,
+  level: 1
 }
 
 export default (state = initState, action) => {
@@ -35,63 +40,94 @@ export default (state = initState, action) => {
     case UP_KEYDOWN: {
       let body = state.body.slice()
 
-      body.reduce((first, second) => {
-        second.row = first.row
-        second.column = first.column
+      body.reverse().reduce((first, second) => {
+        first.row = second.row
+        first.column = second.column
+        return second 
       })
+      body.reverse()
 
-      body[0].row = body[0].row === 0 ? state.rows - 1 : body[0].row - 1
+      body[0].row -= 1
 
       return Object.assign({}, state, {
         isMove: true,
-        body
+        body,
+        direction: direction.UP
       })
     }
 
     case DOWN_KEYDOWN: {
       let body = state.body.slice()
 
-      body.reduce((first, second) => {
-        second.row = first.row
-        second.column = first.column
+      body.reverse().reduce((first, second) => {
+        first.row = second.row
+        first.column = second.column
+        return second 
       })
+      body.reverse()
 
-      body[0].row = body[0].row === state.rows - 1 ? 0 : body[0].row + 1
+      body[0].row += 1
 
       return Object.assign({}, state, {
         isMove: true,
-        body
+        body,
+        direction: direction.DOWN
       })
     }
 
     case LEFT_KEYDOWN: {
       let body = state.body.slice()
 
-      body.reduce((first, second) => {
-        second.row = first.row
-        second.column = first.column
+      body.reverse().reduce((first, second) => {
+        first.row = second.row
+        first.column = second.column
+        return second 
       })
+      body.reverse()
 
-      body[0].column = body[0].column === 0 ? state.columns - 1 : body[0].column - 1
+      body[0].column -= 1
 
       return Object.assign({}, state, {
         isMove: true,
-        body
+        body,
+        direction: direction.LEFT
       })
     }
 
     case RIGHT_KEYDOWN: {
       let body = state.body.slice()
 
-      body.reduce((first, second) => {
-        second.row = first.row
-        second.column = first.column
+      body.reverse().reduce((first, second) => {
+        first.row = second.row
+        first.column = second.column
+        return second 
       })
+      body.reverse()
 
-      body[0].column = body[0].column === state.columns - 1 ? 0 : body[0].column + 1
+      body[0].column += 1
 
       return Object.assign({}, state, {
         isMove: true,
+        body,
+        direction: direction.RIGHT
+      })
+    }
+
+    case NEXT_LEVEL: {
+      let body = state.body.slice(),
+          head = body[0],
+          headDirection = state.direction
+
+      if (!head) {
+        return state
+      }
+
+      body.unshift({
+        row: headDirection === direction.UP ? head.row - 1 : headDirection === direction.DOWN ? head.row + 1 : head.row,
+        column: headDirection === direction.LEFT ? head.column - 1 : headDirection === direction.RIGHT ? head.column + 1 : head.column
+      })
+
+      return Object.assign({}, state, {
         body
       })
     }

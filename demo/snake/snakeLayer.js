@@ -1,3 +1,55 @@
+import gamux from '../../dist/gamux'
+import {
+  direction
+} from './theme'
+import { 
+  leftKeyDown,
+  rightKeyDown,
+  upKeyDown,
+  downKeyDown,
+  gameOver,
+  nextLevel
+} from './actions'
+
+/**
+ * Function detect hit world edge
+ */
+function hitStar (snakeHead, star) {
+  return snakeHead.x < star.x + star.width
+      && snakeHead.x + snakeHead.width > star.x
+      && snakeHead.y < star.y + star.height
+      && snakeHead.y + snakeHead.height > star.y
+}
+
+/**
+ * Function to fill a free dimension rect
+ * example:
+ * fillFreeRect(context, -10, -10, 20, 20) will render four
+ * rect at each corner with 10 pixel dimension
+ */
+function fillFreeRect (context, x, y, width, height) {
+  let canvasWidth = context.canvas.width,
+      canvasHeight = context.canvas.height
+
+  if (x < 0) {
+    fillFreeRect(context, canvasWidth + x, y, Math.min(-x, width), height)
+  }
+
+  if (x > canvasWidth - width) {
+    fillFreeRect(context, Math.max(0, x - canvasWidth), y, width - Math.max(0, canvasWidth - x), height)
+  }
+  
+  if (y < 0) {
+    fillFreeRect(context, x, canvasHeight + y, width, Math.min(-y, height))
+  }
+
+  if (y > canvasHeight - height) {
+    fillFreeRect(context, x, Math.max(0, y - canvasHeight), width, height - Math.max(0, canvasHeight - y))
+  }
+
+  context.fillRect(x, y, width, height)
+}
+
 const initFinalRenderState  = {}
 
 export const snakeLayerUpdater = (finalRenderState = initFinalRenderState, gameState, dirtyKeys) => {
@@ -6,7 +58,8 @@ export const snakeLayerUpdater = (finalRenderState = initFinalRenderState, gameS
           width,
           height,
           rows,
-          columns
+          columns,
+          starPosition
         } = gameState['world'],
         {
           body,
@@ -24,19 +77,24 @@ export const snakeLayerUpdater = (finalRenderState = initFinalRenderState, gameS
         let x = bodyBlock.column * cellWidth,
             y = bodyBlock.row * cellHeight
 
-        // switch (direction) {
-        //   case gamux.shared.direction.UP:
-        //     y -= cellHeight
-        // }
         return {
           x: bodyBlock.column * cellWidth,
           y: bodyBlock.row * cellHeight,
           width: cellWidth,
-          height: cellHeight
+          height: cellHeight,
+          column: bodyBlock.column,
+          row: bodyBlock.row
         }
       }),
       isMove,
-      speed
+      speed,
+      direction,
+      star: {
+        x: starPosition.column * cellWidth,
+        y: starPosition.row * cellHeight,
+        width: cellWidth,
+        height: cellHeight
+      }
     })
   }
   else {
@@ -66,7 +124,21 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
           speed,
           body
         } = renderState,
-        bodyFRS = finalRenderState.body
+        bodyFRS = finalRenderState.body,
+        starFRS = finalRenderState.star
+
+    // Make sure body and bodyFRS are in sync
+    if (body.length < bodyFRS.length) {
+      for (let i = body.length; i < bodyFRS.length; i++) {
+        let bodyFRSBlock = bodyFRS[i]
+        body[i] = {
+          x: bodyFRSBlock.x,
+          y: bodyFRSBlock.y,
+          width: bodyFRSBlock.width,
+          height: bodyFRSBlock.height
+        }
+      }
+    }
 
     // Set the direction for the snake head
     body.forEach((bodyBlock, index) => {
@@ -96,11 +168,9 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
       }
     })
 
-    if (!dirty) {
-      return finalRenderState
-    } else {
+    if (dirty) {
       context.clearRect(0, 0, canvas.width, canvas.height)
-      
+
       // Render
       body.forEach((bodyBlock, index) => {
         if (index === 0) {
@@ -109,12 +179,51 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
         else {
           context.fillStyle = '#3f3f3f'
         }
-        context.fillRect(bodyBlock.x, bodyBlock.y, bodyBlock.width, bodyBlock.height)
+        fillFreeRect(context, bodyBlock.x, bodyBlock.y, bodyBlock.width, bodyBlock.height)
       })
+
+      // Hit detection
+      // Check if snake head hit star
+      let head = body[0],
+          headX = head.x % renderState.width,
+          headY = head.y % renderState.height,
+          headPosition 
+
+      headX = headX < 0 ? renderState.width + headX : headX
+      headY = headY < 0 ? renderState.height + headY : headY
+      if (hitStar({
+        x: headX,
+        y: headY,
+        width: head.width,
+        height: head.height
+      }, starFRS)) {
+        gamux.dispatch(nextLevel(bodyFRS))
+      }
 
       return renderState
     }
-  }
+    else {
+      // Now that the current final render state has arrived
+      // we need to update the final render state
+      switch(finalRenderState.direction) {
+        case direction.UP:
+          gamux.dispatch(upKeyDown())
+          break
 
+        case direction.DOWN:
+          gamux.dispatch(downKeyDown())
+          break
+
+        case direction.LEFT:
+          gamux.dispatch(leftKeyDown())
+          break
+
+        case direction.RIGHT:
+          gamux.dispatch(rightKeyDown())
+          break
+      }
+    }
+  }
+  
   return finalRenderState
 }
