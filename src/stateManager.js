@@ -84,6 +84,3 @@ export function combineUpdater (updaterMap = {}, rendererMap = {}) {
     }
   }
 }
-
-
-
