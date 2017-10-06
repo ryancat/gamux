@@ -1,4 +1,4 @@
-import {combineReducer, createStore} from './stateManager'
+import {combineReducer, createStore, combineUpdater} from './stateManager'
 
 /**
  * The animation loop key for cancel animation
@@ -27,7 +27,11 @@ let _render = () => {}
 /**
  * The store for game
  */
-let _store = null
+let _store = {}
+
+let _updaterMap = {}
+
+let _rendererMap = {}
 
 /**
  * Trigger game loop
@@ -43,7 +47,10 @@ function _loop (lastTimestamp) {
         // _update()
         _accumulator -= dt
       }
-      _render(dt)
+      for (let key in _rendererMap) {
+        let renderer = _rendererMap[key]
+        renderer.renderState = renderer(renderer.renderState, renderer.finalRenderState, dt)
+      }
     }
     _loop(now)
   })
@@ -57,38 +64,40 @@ const gamux = {
     _init = config.init || _init
     _fps = config.fps || _fps
 
-
     let container = config.container
 
     // Create game layers
-    config.layers.forEach((layerName) => {
+    config.layers.forEach((layer) => {
       let canvas = document.createElement('canvas')
       container.appendChild(canvas)
 
-      gamux.layers[layerName] = {
-        canvas,
-        canvasCtx: canvas.getContext('2d')
-      }
+      _updaterMap[layer.name] = layer.updater
+      _rendererMap[layer.name] = layer.render.bind(null, canvas)
+
+      // gamux.layers[layer.name] = {
+      //   canvas,
+      //   canvasCtx: canvas.getContext('2d')
+      // }
     })
 
     // Create game store
-    let reducerMap = config.reducerMap,
-        updaterMap = {}
+    let reducerMap = config.reducerMap
+        // updaterMap = {}
 
-    if (!config.updaterMap) {
-      for (let key in reducerMap) {
-        updaterMap[key] = _update
-      }
-    }
-    else {
-      // We will ignore config.update if updaterMap exists
-      if (process.env.code === 'DEV' && config.update) {
-        console.warn('Ignore config.update and use config.updaterMap')
-      }
-      updaterMap = config.updaterMap
-    }
+    // if (!config.updaterMap) {
+    //   for (let key in reducerMap) {
+    //     updaterMap[key] = _update
+    //   }
+    // }
+    // else {
+    //   // We will ignore config.update if updaterMap exists
+    //   if (process.env.code === 'DEV' && config.update) {
+    //     console.warn('Ignore config.update and use config.updaterMap')
+    //   }
+    //   updaterMap = config.updaterMap
+    // }
 
-    _store = createStore(combineReducer(reducerMap, updaterMap))
+    _store = createStore(combineReducer(reducerMap, combineUpdater(_updaterMap, _rendererMap)))
     _init(_store.getState())
   },
 

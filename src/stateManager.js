@@ -43,11 +43,11 @@ export function createStore (reducer) {
 }
 
 // Assume the recuerMap is a flat map to all reducers
-export function combineReducer (reducerMap = {}, updaterMap = {}) {
+export function combineReducer (reducerMap = {}, updater) {
 
   // Generate a combined reducer function
   return (state = {}, action = {}) => {
-    var newState = {},
+    let newState = {},
         dirtyKeys = []
 
     // Spread the action to all reducers inside the combined one
@@ -64,10 +64,26 @@ export function combineReducer (reducerMap = {}, updaterMap = {}) {
     }
 
     // Call update function for each reduced state
-    dirtyKeys.forEach((dirtyKey) => {
-      updaterMap[dirtyKey](newState, dirtyKey)
-    })
+    updater(newState, dirtyKeys)
+
+    // dirtyKeys.forEach((dirtyKey) => {
+    //   updaterMap[dirtyKey](newState, dirtyKey)
+    // })
 
     return newState
   }
 }
+
+export function combineUpdater (updaterMap = {}, rendererMap = {}) {
+  // Generate combined updater function for all updaters
+  return (state = {}, dirtyKeys = []) => {
+    let newFinalRenderState = {}
+    for (let key in updaterMap) {
+      // Compute the final render state and pass into renderer
+      rendererMap[key].finalRenderState = updaterMap[key](rendererMap[key].finalRenderState, state, dirtyKeys)
+    }
+  }
+}
+
+
+
