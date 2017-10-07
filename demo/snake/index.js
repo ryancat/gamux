@@ -105,6 +105,64 @@ gamux.config({
           break
       }
     })
+
+    // For mobile
+    let touches = {
+      touchstart: Object.assign({}, {
+        x: -1,
+        y: -1
+      }),
+      touchmove: Object.assign({}, {
+        x: -1,
+        y: -1
+      })
+    }
+    
+    function handleTouch (evt) {
+      if (typeof evt.touches === 'undefined') {
+        return 
+      }
+
+      let touch = evt.touches[0]
+      switch (evt.type) {
+        case 'touchstart':
+        case 'touchmove':
+          touches[evt.type].x = touch.pageX
+          touches[evt.type].y = touch.pageY
+          break
+
+        case 'touchend': {
+          if (touches.touchstart.x > -1 && touches.touchmove.x > -1) {
+            let dx = touches.touchmove.x - touches.touchstart.x,
+                dy = touches.touchmove.y - touches.touchstart.y
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+              // Horizontal move
+              if (dx > 0) {
+                gamux.dispatch(rightKeyDown())
+              }
+              else {
+                gamux.dispatch(leftKeyDown())
+              }
+            }
+            else {
+              // Vertical move
+              if (dy > 0) {
+                gamux.dispatch(downKeyDown())
+              }
+              else {
+                gamux.dispatch(upKeyDown())
+              }
+            }
+          }
+          break
+        }
+      }
+    }
+
+    document.addEventListener('touchstart', handleTouch)
+    document.addEventListener('touchmove', handleTouch)
+    document.addEventListener('touchend', handleTouch)
   },
 
   /**

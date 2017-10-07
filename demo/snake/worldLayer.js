@@ -91,7 +91,7 @@ export const worldLayerRender = (canvas, renderState, finalRenderState, dt) => {
 
     // Draw text
     context.fillStyle = '#bfbfbf'
-    context.font = Math.min(width, height) + 'px arial, helvetica, sans-serif'
+    context.font = Math.min(width / 2, height / 2) + 'px arial, helvetica, sans-serif'
     context.textAlign = 'center'
     context.textBaseline = 'middle'
     context.fillText(level, width / 2, height / 2)
