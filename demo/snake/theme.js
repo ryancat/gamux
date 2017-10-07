@@ -1,7 +1,8 @@
 export const gameDefault = {
-  rows: 20,
-  columns: 20,
-  speed: 0.5
+  rows: 16,
+  columns: 16,
+  speed: 0.3,
+  hitDetectionBuffer: 0.5
 }
 
 export const direction = {

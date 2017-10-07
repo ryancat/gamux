@@ -17,6 +17,7 @@ const initState = {
     column: -1
   },
   level: 1,
+  highLevel: 1,
   isGameover: false
 }
 
@@ -46,7 +47,8 @@ export default (state = initState, action) => {
 
     case NEXT_LEVEL: {
       let snakeBody = action.snakeBody,
-          newStarPosition = {}
+          newStarPosition = {},
+          newLevel = state.level + 1
 
       do {
         newStarPosition.row = Math.floor(Math.random() * state.rows)
@@ -56,7 +58,8 @@ export default (state = initState, action) => {
 
       return Object.assign({}, state, {
         starPosition: newStarPosition,
-        level: state.level + 1
+        level: newLevel,
+        highLevel: Math.max(state.highLevel, newLevel)
       })
     }
 

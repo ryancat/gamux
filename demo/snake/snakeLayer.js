@@ -1,6 +1,7 @@
 import gamux from '../../dist/gamux'
 import {
-  direction
+  direction,
+  gameDefault
 } from './theme'
 import { 
   leftKeyDown,
@@ -16,69 +17,67 @@ import {
  * Function detect hit world edge
  */
 function hitStar (snakeHead, star) {
-  return snakeHead.x < star.x + star.width
-      && snakeHead.x + snakeHead.width > star.x
-      && snakeHead.y < star.y + star.height
-      && snakeHead.y + snakeHead.height > star.y
+  let {hitDetectionBuffer} = gameDefault
+
+  return snakeHead.x + snakeHead.width * hitDetectionBuffer < star.x + star.width
+      && snakeHead.x + snakeHead.width * (1 - hitDetectionBuffer) > star.x
+      && snakeHead.y + snakeHead.height * hitDetectionBuffer < star.y + star.height
+      && snakeHead.y + snakeHead.height * (1 - hitDetectionBuffer) > star.y
 }
 
-function hitSelfByHead (snakeBody, headDirection) {
-  // let head = snakeBody[0]
-  // if (!head) {
-  //   return false
-  // }
+function hitOnRight (focus, other, width, height) {
+  let {hitDetectionBuffer} = gameDefault,
+      focusX = focus.x > 0 ? focus.x % width : width + (focus.x % width),
+      focusY = focus.y > 0 ? focus.y % height : height + (focus.y % height),
+      otherX = other.x > 0 ? other.x % width : width + (other.x % width),
+      otherY = other.y > 0 ? other.y % height : height + (other.y % height)
 
-  // return snakeBody.slice(3).some((bodyBlock) => {
-  //   switch (headDirection) {
-  //     case direction.UP:
-  //       return hitOnTop(head, bodyBlock)
-
-  //     case direction.DOWN: {
-  //       return hitOnBottom(head, bodyBlock)
-  //     }
-
-  //     case direction.LEFT: {
-  //       return hitOnLeft(head, bodyBlock)
-  //     }
-
-  //     case direction.RIGHT: {
-  //       return hitOnRight(head, bodyBlock)
-  //     }
-  //   }
-  // })
-
-  return getHitBodyIndex(snakeBody, headDirection) >= 0
+  return focusX + focus.width * (1 - hitDetectionBuffer) > otherX
+      && focusX + focus.width < otherX + other.width
+      && focusY + focus.height * (1 - hitDetectionBuffer) > otherY
+      && focusY + focus.height * hitDetectionBuffer < otherY + other.height
 }
 
-function hitOnRight (focus, other) {
-  return focus.x + focus.width > other.x
-      && focus.x + focus.width < other.x + other.width
-      && focus.y + focus.height > other.y
-      && focus.y < other.y + other.height
+function hitOnLeft (focus, other, width, height) {
+  let {hitDetectionBuffer} = gameDefault,
+      focusX = focus.x > 0 ? focus.x % width : width + (focus.x % width),
+      focusY = focus.y > 0 ? focus.y % height : height + (focus.y % height),
+      otherX = other.x > 0 ? other.x % width : width + (other.x % width),
+      otherY = other.y > 0 ? other.y % height : height + (other.y % height)
+
+  return focusX + focus.width * hitDetectionBuffer < otherX + other.width
+      && focusX > otherX
+      && focusY + focus.height * (1 - hitDetectionBuffer) > otherY
+      && focusY + focus.height * hitDetectionBuffer < otherY + other.height
 }
 
-function hitOnLeft (focus, other) {
-  return focus.x < other.x + other.width
-      && focus.x > other.x
-      && focus.y + focus.height > other.y
-      && focus.y < other.y + other.height
+function hitOnBottom (focus, other, width, height) {
+  let {hitDetectionBuffer} = gameDefault,
+      focusX = focus.x > 0 ? focus.x % width : width + (focus.x % width),
+      focusY = focus.y > 0 ? focus.y % height : height + (focus.y % height),
+      otherX = other.x > 0 ? other.x % width : width + (other.x % width),
+      otherY = other.y > 0 ? other.y % height : height + (other.y % height)
+
+  return focusY + focus.height * (1 - hitDetectionBuffer) > otherY
+      && focusY + focus.height < otherY + other.height
+      && focusX + focus.width * (1 - hitDetectionBuffer) > otherX
+      && focusX + focus.width * hitDetectionBuffer < otherX + other.width
 }
 
-function hitOnBottom (focus, other) {
-  return focus.y + focus.height > other.y
-      && focus.y + focus.height < other.y + other.height
-      && focus.x + focus.width > other.x
-      && focus.x < other.x + other.width
+function hitOnTop (focus, other, width, height) {
+  let {hitDetectionBuffer} = gameDefault,
+      focusX = focus.x > 0 ? focus.x % width : width + (focus.x % width),
+      focusY = focus.y > 0 ? focus.y % height : height + (focus.y % height),
+      otherX = other.x > 0 ? other.x % width : width + (other.x % width),
+      otherY = other.y > 0 ? other.y % height : height + (other.y % height)
+
+  return focusY + focus.height * hitDetectionBuffer < otherY + other.height
+      && focusY > otherY
+      && focusX + focus.width * (1 - hitDetectionBuffer) > otherX
+      && focusX + focus.width * hitDetectionBuffer < otherX + other.width
 }
 
-function hitOnTop (focus, other) {
-  return focus.y < other.y + other.height
-      && focus.y > other.y
-      && focus.x + focus.width > other.x
-      && focus.x < other.x + other.width
-}
-
-function getHitBodyIndex (snakeBody, headDirection) {
+function getHitBodyIndex (snakeBody, headDirection, width, height) {
   let head = snakeBody[0]
 
   if (!head) {
@@ -88,10 +87,10 @@ function getHitBodyIndex (snakeBody, headDirection) {
   for (let i = 3; i < snakeBody.length; i++) {
     let bodyBlock = snakeBody[i]
 
-    if ((headDirection === direction.UP && hitOnTop(head, bodyBlock))
-      || (headDirection === direction.DOWN && hitOnBottom(head, bodyBlock))
-      || (headDirection === direction.LEFT && hitOnLeft(head, bodyBlock))
-      || (headDirection === direction.RIGHT && hitOnRight(head, bodyBlock))) {
+    if ((headDirection === direction.UP && hitOnTop(head, bodyBlock, width, height))
+      || (headDirection === direction.DOWN && hitOnBottom(head, bodyBlock, width, height))
+      || (headDirection === direction.LEFT && hitOnLeft(head, bodyBlock, width, height))
+      || (headDirection === direction.RIGHT && hitOnRight(head, bodyBlock, width, height))) {
       return i
     }
   }
@@ -99,8 +98,8 @@ function getHitBodyIndex (snakeBody, headDirection) {
   return -1
 }
 
-function cutSelfByHead (snakeBody, headDirection) {
-  let hitBodyIndex = getHitBodyIndex(snakeBody, headDirection)
+function cutSelfByHead (snakeBody, headDirection, width, height) {
+  let hitBodyIndex = getHitBodyIndex(snakeBody, headDirection, width, height)
 
   if (hitBodyIndex < 0) {
     return 
@@ -120,18 +119,22 @@ function fillFreeRect (context, x, y, width, height) {
       canvasHeight = context.canvas.height
 
   if (x < 0) {
+    x = x % canvasWidth
     fillFreeRect(context, canvasWidth + x, y, Math.min(-x, width), height)
   }
 
   if (x > canvasWidth - width) {
+    x = x % canvasWidth
     fillFreeRect(context, Math.max(0, x - canvasWidth), y, width - Math.max(0, canvasWidth - x), height)
   }
   
   if (y < 0) {
+    y = y % canvasHeight
     fillFreeRect(context, x, canvasHeight + y, width, Math.min(-y, height))
   }
 
   if (y > canvasHeight - height) {
+    y = y % canvasHeight
     fillFreeRect(context, x, Math.max(0, y - canvasHeight), width, height - Math.max(0, canvasHeight - y))
   }
 
@@ -291,7 +294,7 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
       // Hit detection
       // Check if snake head hit itself
       // Cut the body if hit itself
-      cutSelfByHead(body, renderState.direction)
+      cutSelfByHead(body, renderState.direction, renderState.width, renderState.height)
 
       // Check if snake head hit star
       let head = body[0],

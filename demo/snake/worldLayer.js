@@ -8,7 +8,8 @@ export const worldLayerUpdater = (finalRenderState = initFinalRenderState, gameS
           rows,
           columns,
           starPosition,
-          level
+          level,
+          highLevel
         } = gameState['world'],
         cellWidth = width / columns,
         cellHeight = height / rows
@@ -34,7 +35,8 @@ export const worldLayerUpdater = (finalRenderState = initFinalRenderState, gameS
         width: cellWidth,
         height: cellHeight
       },
-      level
+      level,
+      highLevel
     })
   }
   else {
@@ -57,6 +59,7 @@ export const worldLayerRender = (canvas, renderState, finalRenderState, dt) => {
       xs,
       ys,
       level,
+      highLevel,
       star
     } = renderState
 
@@ -95,6 +98,9 @@ export const worldLayerRender = (canvas, renderState, finalRenderState, dt) => {
     context.textAlign = 'center'
     context.textBaseline = 'middle'
     context.fillText(level, width / 2, height / 2)
+
+    context.font = Math.min(width / 16, height / 16) + 'px arial, helvetica, sans-serif'
+    context.fillText('Highest: ' + highLevel, width / 2, height * 0.8)
 
     // Draw star
     context.fillStyle = '#ffae00'

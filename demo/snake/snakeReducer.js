@@ -155,7 +155,8 @@ export default (state = initState, action) => {
 
       return Object.assign({}, state, {
         body,
-        level: state.level + 1
+        level: state.level + 1,
+        speed: gameDefault.speed + (state.level - 1) * 0.02
       })
     }
 
@@ -167,13 +168,15 @@ export default (state = initState, action) => {
 
     case CUT_SNAKE_BODY: {
       let body = state.body.slice(),
-          {cutBodyIndex} = action
+          {cutBodyIndex} = action,
+          newLevel = cutBodyIndex - 1
 
       body.splice(cutBodyIndex)
 
       return Object.assign({}, state, {
         body,
-        level: cutBodyIndex - 1
+        level: newLevel,
+        speed: gameDefault.speed + newLevel * 0.02
       })
     }
 
