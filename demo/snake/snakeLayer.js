@@ -8,7 +8,8 @@ import {
   upKeyDown,
   downKeyDown,
   gameOver,
-  nextLevel
+  nextLevel,
+  cutSnakeBody
 } from './actions'
 
 /**
@@ -19,6 +20,93 @@ function hitStar (snakeHead, star) {
       && snakeHead.x + snakeHead.width > star.x
       && snakeHead.y < star.y + star.height
       && snakeHead.y + snakeHead.height > star.y
+}
+
+function hitSelfByHead (snakeBody, headDirection) {
+  // let head = snakeBody[0]
+  // if (!head) {
+  //   return false
+  // }
+
+  // return snakeBody.slice(3).some((bodyBlock) => {
+  //   switch (headDirection) {
+  //     case direction.UP:
+  //       return hitOnTop(head, bodyBlock)
+
+  //     case direction.DOWN: {
+  //       return hitOnBottom(head, bodyBlock)
+  //     }
+
+  //     case direction.LEFT: {
+  //       return hitOnLeft(head, bodyBlock)
+  //     }
+
+  //     case direction.RIGHT: {
+  //       return hitOnRight(head, bodyBlock)
+  //     }
+  //   }
+  // })
+
+  return getHitBodyIndex(snakeBody, headDirection) >= 0
+}
+
+function hitOnRight (focus, other) {
+  return focus.x + focus.width > other.x
+      && focus.x + focus.width < other.x + other.width
+      && focus.y + focus.height > other.y
+      && focus.y < other.y + other.height
+}
+
+function hitOnLeft (focus, other) {
+  return focus.x < other.x + other.width
+      && focus.x > other.x
+      && focus.y + focus.height > other.y
+      && focus.y < other.y + other.height
+}
+
+function hitOnBottom (focus, other) {
+  return focus.y + focus.height > other.y
+      && focus.y + focus.height < other.y + other.height
+      && focus.x + focus.width > other.x
+      && focus.x < other.x + other.width
+}
+
+function hitOnTop (focus, other) {
+  return focus.y < other.y + other.height
+      && focus.y > other.y
+      && focus.x + focus.width > other.x
+      && focus.x < other.x + other.width
+}
+
+function getHitBodyIndex (snakeBody, headDirection) {
+  let head = snakeBody[0]
+
+  if (!head) {
+    return -1
+  }
+
+  for (let i = 3; i < snakeBody.length; i++) {
+    let bodyBlock = snakeBody[i]
+
+    if ((headDirection === direction.UP && hitOnTop(head, bodyBlock))
+      || (headDirection === direction.DOWN && hitOnBottom(head, bodyBlock))
+      || (headDirection === direction.LEFT && hitOnLeft(head, bodyBlock))
+      || (headDirection === direction.RIGHT && hitOnRight(head, bodyBlock))) {
+      return i
+    }
+  }
+
+  return -1
+}
+
+function cutSelfByHead (snakeBody, headDirection) {
+  let hitBodyIndex = getHitBodyIndex(snakeBody, headDirection)
+
+  if (hitBodyIndex < 0) {
+    return 
+  }
+
+  gamux.dispatch(cutSnakeBody(hitBodyIndex))
 }
 
 /**
@@ -81,9 +169,9 @@ export const snakeLayerUpdater = (finalRenderState = initFinalRenderState, gameS
           x: bodyBlock.column * cellWidth,
           y: bodyBlock.row * cellHeight,
           width: cellWidth,
-          height: cellHeight,
-          column: bodyBlock.column,
-          row: bodyBlock.row
+          height: cellHeight
+          // column: bodyBlock.column,
+          // row: bodyBlock.row
         }
       }),
       isMove,
@@ -112,13 +200,27 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
       dirty = true
     }
 
+    // Set things that are not animated
+    Object.assign(renderState, {
+      direction: finalRenderState.direction,
+      isMove: finalRenderState.isMove,
+      speed: finalRenderState.speed,
+      width: finalRenderState.width,
+      height: finalRenderState.height
+    })
+
     if (canvas.width !== renderState.width
       || canvas.height !== renderState.height) {
       canvas.width = renderState.width
       canvas.height = renderState.height
       // Clear canvas manually
       context.clearRect(0, 0, canvas.width, canvas.height)
-    }    
+    }
+
+    if (!renderState.isMove) {
+      // Snake stops move
+      return renderState
+    }
 
     let {
           speed,
@@ -129,6 +231,7 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
 
     // Make sure body and bodyFRS are in sync
     if (body.length < bodyFRS.length) {
+      // Body grows
       for (let i = body.length; i < bodyFRS.length; i++) {
         let bodyFRSBlock = bodyFRS[i]
         body[i] = {
@@ -139,11 +242,13 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
         }
       }
     }
+    else if (body.length > bodyFRS.length) {
+      // Body got cut
+      body.splice(bodyFRS.length)
+    }
 
-    // Set the direction for the snake head
+    // Set the actual render dimensions for the snake head
     body.forEach((bodyBlock, index) => {
-      // Each body block will move towards direction
-      // for a given speed 
       let {
             x,
             y,
@@ -169,6 +274,7 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
     })
 
     if (dirty) {
+      // We have someting to render here
       context.clearRect(0, 0, canvas.width, canvas.height)
 
       // Render
@@ -183,6 +289,10 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
       })
 
       // Hit detection
+      // Check if snake head hit itself
+      // Cut the body if hit itself
+      cutSelfByHead(body, renderState.direction)
+
       // Check if snake head hit star
       let head = body[0],
           headX = head.x % renderState.width,
@@ -199,13 +309,11 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
       }, starFRS)) {
         gamux.dispatch(nextLevel(bodyFRS))
       }
-
-      return renderState
     }
     else {
       // Now that the current final render state has arrived
       // we need to update the final render state
-      switch(finalRenderState.direction) {
+      switch(renderState.direction) {
         case direction.UP:
           gamux.dispatch(upKeyDown())
           break
@@ -225,5 +333,5 @@ export const snakeLayerRender = (canvas, renderState, finalRenderState, dt) => {
     }
   }
   
-  return finalRenderState
+  return renderState
 }

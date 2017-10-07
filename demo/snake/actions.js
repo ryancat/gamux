@@ -8,6 +8,7 @@ export const UP_KEYDOWN = 'UP_KEYDOWN'
 export const DOWN_KEYDOWN = 'DOWN_KEYDOWN'
 export const GAME_OVER = 'GAME_OVER'
 export const NEXT_LEVEL = 'NEXT_LEVEL'
+export const CUT_SNAKE_BODY = 'CUT_SNAKE_BODY'
 
 // Action creators
 export function gameResize (width, height) {
@@ -67,5 +68,12 @@ export function nextLevel (snakeBody) {
   return {
     type: NEXT_LEVEL,
     snakeBody
+  }
+}
+
+export function cutSnakeBody (cutBodyIndex) {
+  return {
+    type: CUT_SNAKE_BODY,
+    cutBodyIndex
   }
 }

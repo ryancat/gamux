@@ -7,7 +7,8 @@ export const worldLayerUpdater = (finalRenderState = initFinalRenderState, gameS
           height,
           rows,
           columns,
-          starPosition
+          starPosition,
+          level
         } = gameState['world'],
         cellWidth = width / columns,
         cellHeight = height / rows
@@ -32,7 +33,8 @@ export const worldLayerUpdater = (finalRenderState = initFinalRenderState, gameS
         y: starPosition.row * cellHeight,
         width: cellWidth,
         height: cellHeight
-      }
+      },
+      level
     })
   }
   else {
@@ -46,32 +48,58 @@ export const worldLayerRender = (canvas, renderState, finalRenderState, dt) => {
       renderState = finalRenderState
     }
 
+    // No animation to world layer
+    renderState = finalRenderState
+
+    let {
+      width,
+      height,
+      xs,
+      ys,
+      level,
+      star
+    } = renderState
+
     let context = canvas.getContext('2d')
 
-    canvas.width = renderState.width
-    canvas.height = renderState.height
+    if (canvas.width !== width
+      || canvas.height !== height) {
+      canvas.width = width
+      canvas.height = height
+      // Clear canvas manually
+      context.clearRect(0, 0, canvas.width, canvas.height)
+    }
+
+    // Clear canvas manually before redraw
+    context.clearRect(0, 0, canvas.width, canvas.height)
+
     context.strokeStyle = '#f9f9f9'
     context.lineWidth = 1
     context.beginPath()
 
-    renderState.xs.forEach((verticalLine) => {
+    xs.forEach((verticalLine) => {
       context.moveTo(verticalLine.x, verticalLine.y0)
       context.lineTo(verticalLine.x, verticalLine.y1)
       context.stroke()
     })
 
-    renderState.ys.forEach((horizontalLine) => {
+    ys.forEach((horizontalLine) => {
       context.moveTo(horizontalLine.x0, horizontalLine.y)
       context.lineTo(horizontalLine.x1, horizontalLine.y)
       context.stroke()
     })
 
-    let star = renderState.star
+    // Draw text
+    context.fillStyle = '#bfbfbf'
+    context.font = Math.min(width, height) + 'px arial, helvetica, sans-serif'
+    context.textAlign = 'center'
+    context.textBaseline = 'middle'
+    context.fillText(level, width / 2, height / 2)
+
+    // Draw star
     context.fillStyle = '#ffae00'
     context.fillRect(star.x, star.y, star.width, star.height)
-
-    return renderState
   }
 
-  return finalRenderState
+  return renderState
 }

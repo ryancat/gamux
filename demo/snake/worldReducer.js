@@ -1,7 +1,9 @@
 import {
   GAME_RESIZE,
   SET_STAR_POSITION,
-  NEXT_LEVEL
+  NEXT_LEVEL,
+  GAME_OVER,
+  CUT_SNAKE_BODY
 } from './actions'
 import {gameDefault} from './theme'
 
@@ -14,7 +16,8 @@ const initState = {
     row: -1,
     column: -1
   },
-  level: 1
+  level: 1,
+  isGameover: false
 }
 
 function isOverlap (starPosition, snakeBody) {
@@ -52,7 +55,20 @@ export default (state = initState, action) => {
       while (isOverlap(newStarPosition, snakeBody))
 
       return Object.assign({}, state, {
-        starPosition: newStarPosition
+        starPosition: newStarPosition,
+        level: state.level + 1
+      })
+    }
+
+    case GAME_OVER: {
+      return Object.assign({}, state, {
+        isGameover: true
+      })
+    }
+
+    case CUT_SNAKE_BODY: {
+      return Object.assign({}, state, {
+        level: action.cutBodyIndex - 1
       })
     }
 

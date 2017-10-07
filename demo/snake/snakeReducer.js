@@ -4,7 +4,9 @@ import {
   UP_KEYDOWN,
   DOWN_KEYDOWN,
   SET_SNAKE_BODY,
-  NEXT_LEVEL
+  NEXT_LEVEL,
+  GAME_OVER,
+  CUT_SNAKE_BODY
 } from './actions'
 import {
   gameDefault,
@@ -40,6 +42,12 @@ export default (state = initState, action) => {
     case UP_KEYDOWN: {
       let body = state.body.slice()
 
+      if (body[0].row === body[1].row + 1) {
+        // Hit backwards 
+        // This should trigger nothing
+        return state
+      }
+
       body.reverse().reduce((first, second) => {
         first.row = second.row
         first.column = second.column
@@ -58,6 +66,12 @@ export default (state = initState, action) => {
 
     case DOWN_KEYDOWN: {
       let body = state.body.slice()
+
+      if (body[0].row === body[1].row - 1) {
+        // Hit backwards 
+        // This should trigger nothing
+        return state
+      }
 
       body.reverse().reduce((first, second) => {
         first.row = second.row
@@ -78,6 +92,12 @@ export default (state = initState, action) => {
     case LEFT_KEYDOWN: {
       let body = state.body.slice()
 
+      if (body[0].column === body[1].column + 1) {
+        // Hit backwards 
+        // This should trigger nothing
+        return state
+      }
+
       body.reverse().reduce((first, second) => {
         first.row = second.row
         first.column = second.column
@@ -96,6 +116,12 @@ export default (state = initState, action) => {
 
     case RIGHT_KEYDOWN: {
       let body = state.body.slice()
+
+      if (body[0].column === body[1].column - 1) {
+        // Hit backwards 
+        // This should trigger nothing
+        return state
+      }
 
       body.reverse().reduce((first, second) => {
         first.row = second.row
@@ -128,7 +154,26 @@ export default (state = initState, action) => {
       })
 
       return Object.assign({}, state, {
-        body
+        body,
+        level: state.level + 1
+      })
+    }
+
+    case GAME_OVER: {
+      return Object.assign({}, state, {
+        isMove: false
+      })
+    }
+
+    case CUT_SNAKE_BODY: {
+      let body = state.body.slice(),
+          {cutBodyIndex} = action
+
+      body.splice(cutBodyIndex)
+
+      return Object.assign({}, state, {
+        body,
+        level: cutBodyIndex - 1
       })
     }
 
