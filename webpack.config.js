@@ -45,17 +45,30 @@ module.exports = [{
     filename: '[name].js'
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/, 
         include: path.join(__dirname, 'demo'), 
-        loaders: ['babel-loader']
+        use: ['babel-loader']
       },
       {
         test: /(\.scss)$/, 
         include: path.join(__dirname, 'demo'), 
-        loaders: ['style-loader', 'css-loader', 'sass-loader']
-      }
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      },
+      {
+        test: /\.(jpe?g|gif|png|svg|woff|ttf|wav|mp3)$/, 
+        include: path.join(__dirname, 'demo'),
+        loader: ['file-loader?name=[name].[ext]']
+      },
+      // {
+      //   test: /\.html$/,
+      //   include: path.join(__dirname, 'demo'),
+      //   use: [
+      //     'file-loader?name=[name].[ext]', 
+      //     'extract-loader', 
+      //     'html-loader']
+      // }
     ]
   }
 }]

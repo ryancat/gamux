@@ -13,6 +13,8 @@ import {
   downKeyDown
 } from './actions'
 
+// import './index.html'
+import './snake_thumbnail.png'
 import './index.scss'
 
 const container = document.getElementById('root')
