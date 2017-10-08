@@ -31,11 +31,14 @@ function isOverlap (starPosition, snakeBody) {
 export default (state = initState, action) => {
   switch (action.type) {
 
-    case GAME_RESIZE:
+    case GAME_RESIZE: {
+      let gameSize = Math.min(Math.min(action.width, action.height), 600)
+      
       return Object.assign({}, state, {
-        width: action.width,
-        height: action.height
+        width: gameSize,
+        height: gameSize
       })
+    }
 
     case SET_STAR_POSITION:
       return Object.assign({}, state, {

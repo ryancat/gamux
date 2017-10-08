@@ -76,6 +76,9 @@ export const worldLayerRender = (canvas, renderState, finalRenderState, dt) => {
     // Clear canvas manually before redraw
     context.clearRect(0, 0, canvas.width, canvas.height)
 
+    context.fillStyle = '#ffffff'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+
     context.strokeStyle = '#f9f9f9'
     context.lineWidth = 1
     context.beginPath()
