@@ -166,6 +166,8 @@ gamux.config({
           break
         }
       }
+
+      evt.preventDefault()
     }
 
     document.addEventListener('touchstart', handleTouch)
