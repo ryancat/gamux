@@ -33,6 +33,14 @@ gamux.config({
   }],
 
   /**
+   * The map for all reducers the store can break down
+   */
+  reducerMap: {
+    snake: snakeReducer,
+    world: worldReducer
+  },
+
+  /**
    * init game. Getting called before game loop starts
    */
   init: (gameState) => {
@@ -163,14 +171,6 @@ gamux.config({
     document.addEventListener('touchstart', handleTouch)
     document.addEventListener('touchmove', handleTouch)
     document.addEventListener('touchend', handleTouch)
-  },
-
-  /**
-   * The map for all reducers the store can break down
-   */
-  reducerMap: {
-    snake: snakeReducer,
-    world: worldReducer
   }
 })
 
