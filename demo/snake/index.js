@@ -124,7 +124,7 @@ gamux.config({
           x: -1, 
           y: -1
         },
-        touchMoveBuffer = 10
+        touchMoveBuffer = 40
 
     function handleTouchStart (evt) {
       if (typeof evt.touches === 'undefined') {
