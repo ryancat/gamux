@@ -66,6 +66,10 @@ const gamux = {
     }
   },
 
+  getState: (stateKey) => {
+    return _store.getState(stateKey)
+  },
+
   layers: {},
 
   start: () => {

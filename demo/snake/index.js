@@ -12,6 +12,9 @@ import {
   upKeyDown,
   downKeyDown
 } from './actions'
+import {
+  direction
+} from './theme'
 
 // import './index.html'
 import './snake_thumbnail.png'
@@ -117,64 +120,66 @@ gamux.config({
     })
 
     // For mobile
-    let touches = {
-      touchstart: Object.assign({}, {
-        x: -1,
-        y: -1
-      }),
-      touchmove: Object.assign({}, {
-        x: -1,
-        y: -1
-      })
-    }
-    
-    function handleTouch (evt) {
+    let touchStart = {
+          x: -1, 
+          y: -1
+        },
+        touchMoveBuffer = 10
+
+    function handleTouchStart (evt) {
       if (typeof evt.touches === 'undefined') {
         return 
       }
 
       let touch = evt.touches[0]
-      switch (evt.type) {
-        case 'touchstart':
-        case 'touchmove':
-          touches[evt.type].x = touch.pageX
-          touches[evt.type].y = touch.pageY
-          break
 
-        case 'touchend': {
-          if (touches.touchstart.x > -1 && touches.touchmove.x > -1) {
-            let dx = touches.touchmove.x - touches.touchstart.x,
-                dy = touches.touchmove.y - touches.touchstart.y
+      touchStart.x = touch.pageX
+      touchStart.y = touch.pageY
+    }
 
-            if (Math.abs(dx) > Math.abs(dy)) {
-              // Horizontal move
-              if (dx > 0) {
-                gamux.dispatch(rightKeyDown())
-              }
-              else {
-                gamux.dispatch(leftKeyDown())
-              }
-            }
-            else {
-              // Vertical move
-              if (dy > 0) {
-                gamux.dispatch(downKeyDown())
-              }
-              else {
-                gamux.dispatch(upKeyDown())
-              }
-            }
-          }
-          break
+    function handleTouchMove (evt) {
+      evt.preventDefault()
+      
+      if (typeof evt.touches === 'undefined') {
+        return 
+      }
+
+      let touch = evt.touches[0],
+          headDirection = gamux.getState('snake').direction
+
+      let dx = touch.pageX - touchStart.x,
+          dy = touch.pageY - touchStart.y
+
+      if (Math.abs(dx) <= touchMoveBuffer && Math.abs(dy) <= touchMoveBuffer) {
+        return
+      }
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal move
+        if (dx > 0 && headDirection !== direction.RIGHT) {
+          gamux.dispatch(rightKeyDown())
+          
+        }
+        else if (dx < 0 && headDirection !== direction.LEFT) {
+          gamux.dispatch(leftKeyDown())
+        }
+      }
+      else {
+        // Vertical move
+        if (dy > 0 && headDirection !== direction.DOWN) {
+          gamux.dispatch(downKeyDown())
+        }
+        else if (dy < 0 && headDirection !== direction.UP) {
+          gamux.dispatch(upKeyDown())
         }
       }
 
-      evt.preventDefault()
+      touchStart.x = touch.pageX
+      touchStart.y = touch.pageY
     }
 
-    document.addEventListener('touchstart', handleTouch)
-    document.addEventListener('touchmove', handleTouch)
-    document.addEventListener('touchend', handleTouch)
+    document.addEventListener('touchstart', handleTouchStart)
+    document.addEventListener('touchmove', handleTouchMove)
   }
 })
 
